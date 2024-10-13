@@ -5,7 +5,7 @@ ALTER TABLE `chair`
 
 ALTER TABLE `estate`
     ADD COLUMN `pt` POINT
-        GENERATED ALWAYS AS (ST_SRID(POINT(`longitude`, `latitude`), 4326))
+        GENERATED ALWAYS AS (POINT(`latitude`, `longitude`))
         STORED NOT NULL INVISIBLE;
 
 ALTER TABLE `chair`
@@ -30,5 +30,5 @@ ALTER TABLE `estate`
     ADD INDEX door_height (`door_height`);
 ALTER TABLE `estate`
     ADD INDEX door_width (`door_width`);
-ALTER TABLE `estate`
-    ADD SPATIAL INDEX point_idx (`pt`);
+# ALTER TABLE `estate`
+#     ADD SPATIAL INDEX point_idx (`pt`);
