@@ -77,6 +77,22 @@ type Estate struct {
 	Popularity  int64   `db:"popularity" json:"-"`
 }
 
+type EstateWithCount struct {
+	Count       int64   `db:"total_count"`
+	ID          int64   `db:"id" json:"id"`
+	Thumbnail   string  `db:"thumbnail" json:"thumbnail"`
+	Name        string  `db:"name" json:"name"`
+	Description string  `db:"description" json:"description"`
+	Latitude    float64 `db:"latitude" json:"latitude"`
+	Longitude   float64 `db:"longitude" json:"longitude"`
+	Address     string  `db:"address" json:"address"`
+	Rent        int64   `db:"rent" json:"rent"`
+	DoorHeight  int64   `db:"door_height" json:"doorHeight"`
+	DoorWidth   int64   `db:"door_width" json:"doorWidth"`
+	Features    string  `db:"features" json:"features"`
+	Popularity  int64   `db:"popularity" json:"-"`
+}
+
 // EstateSearchResponse estate/searchへのレスポンスの形式
 type EstateSearchResponse struct {
 	Count   int64    `json:"count"`
@@ -787,21 +803,15 @@ func searchEstates(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	searchQuery := "SELECT * FROM estate WHERE "
-	countQuery := "SELECT COUNT(*) FROM estate WHERE "
 	searchCondition := strings.Join(conditions, " AND ")
-	limitOffset := " ORDER BY popularity DESC, id ASC LIMIT ? OFFSET ?"
+	searchQuery := `SELECT *, COUNT(*) OVER() as total_count FROM estate
+	WHERE` + searchCondition + `
+	ORDER BY popularity DESC, id ASC LIMIT ? OFFSET ?`
 
 	var res EstateSearchResponse
-	err = db.Get(&res.Count, countQuery+searchCondition, params...)
-	if err != nil {
-		c.Logger().Errorf("searchEstates DB execution error : %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
-
-	estates := []Estate{}
+	estates := []EstateWithCount{}
 	params = append(params, perPage, page*perPage)
-	err = db.Select(&estates, searchQuery+searchCondition+limitOffset, params...)
+	err = db.Select(&estates, searchQuery, params...)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusOK, EstateSearchResponse{Count: 0, Estates: []Estate{}})
@@ -810,7 +820,28 @@ func searchEstates(c echo.Context) error {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	res.Estates = estates
+	if len(estates) == 0 {
+		return c.JSON(http.StatusOK, EstateSearchResponse{Count: 0, Estates: []Estate{}})
+	}
+
+	es := make([]Estate, estates[0].Count)
+	for i, e := range estates {
+		es[i] = Estate{
+			ID:          e.ID,
+			Thumbnail:   e.Thumbnail,
+			Name:        e.Name,
+			Description: e.Description,
+			Latitude:    e.Latitude,
+			Longitude:   e.Longitude,
+			Address:     e.Address,
+			Rent:        e.Rent,
+			DoorHeight:  e.DoorHeight,
+			DoorWidth:   e.DoorWidth,
+			Features:    e.Features,
+			Popularity:  e.Popularity,
+		}
+	}
+	res.Count = estates[0].Count
 
 	return c.JSON(http.StatusOK, res)
 }
