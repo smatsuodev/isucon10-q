@@ -25,3 +25,5 @@ ALTER TABLE `estate`
     ADD INDEX door_height (`door_height`);
 ALTER TABLE `estate`
     ADD INDEX door_width (`door_width`);
+ALTER TABLE `estate`
+    ADD INDEX latitude_longitude (`latitude`, `longitude`);
