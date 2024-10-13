@@ -880,7 +880,7 @@ func searchEstateNazotte(c echo.Context) error {
 	var re EstateSearchResponse
 
 	query := fmt.Sprintf(
-		`SELECT * FROM estate WHERE ST_Contains(ST_GeomFromText(%s), pt) ORDER BY popularity DESC, id LIMIT ?`,
+		`SELECT * FROM estate WHERE ST_Contains(ST_GeomFromText(%s), POINT(latitude, longitude)) ORDER BY popularity DESC, id LIMIT ?`,
 		coordinates.coordinatesToText(),
 	)
 	if err := db.Select(&re.Estates, query, NazotteLimit); err != nil {

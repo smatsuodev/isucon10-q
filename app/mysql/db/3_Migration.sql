@@ -3,10 +3,10 @@ ALTER TABLE `chair`
         GENERATED ALWAYS AS (`stock` > 0)
         STORED NOT NULL;
 
-ALTER TABLE `estate`
-    ADD COLUMN `pt` POINT
-        GENERATED ALWAYS AS (POINT(`latitude`, `longitude`))
-        STORED NOT NULL INVISIBLE;
+# ALTER TABLE `estate`
+#     ADD COLUMN `pt` POINT
+#         GENERATED ALWAYS AS (POINT(`latitude`, `longitude`))
+#         STORED NOT NULL INVISIBLE;
 
 ALTER TABLE `chair`
     ADD INDEX popularity_id_idx (`popularity` DESC, `id`);
