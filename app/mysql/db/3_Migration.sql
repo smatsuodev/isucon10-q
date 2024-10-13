@@ -1,6 +1,7 @@
 ALTER TABLE `chair`
     ADD COLUMN `in_stock` BOOLEAN
-        GENERATED ALWAYS AS (`stock` > 0) STORED;
+        GENERATED ALWAYS AS (`stock` > 0)
+        STORED NOT NULL;
 
 ALTER TABLE `chair`
     ADD INDEX width_stock_popularity_id_idx (`width`, `stock`, `popularity` DESC, `id`);
