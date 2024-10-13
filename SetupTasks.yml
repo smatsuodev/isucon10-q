@@ -15,7 +15,7 @@ vars:
   # Rarely changed
   REPO_DIR:
     sh: find $HOME -maxdepth 2 -name "SetupTasks.yml" -type f -exec dirname {} \; | head -1
-  WEBAPP_DIR: $HOME/webapp
+  WEBAPP_DIR: $HOME/isuumo/webapp
   CMD_INSTALL_DIR: /usr/local/bin
   PPROTEIN_CONFIG_DIR: /etc/pprotein
   ALIAS:
@@ -53,7 +53,7 @@ tasks:
     desc: Install all tools
     cmds:
       - sudo apt-get -qq update && sudo apt-get install -qq tree jq graphviz wget watch
-      - task: install-bottom
+        # - task: install-bottom
       - task: install-bottom-config
       - task: install-pprotein
       - task: install-pprotein-service
