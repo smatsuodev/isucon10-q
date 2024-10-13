@@ -97,7 +97,7 @@ tasks:
     vars:
       GO_VERSION: "1.23.0"
       GO_DOWNLOAD_URL: https://go.dev/dl/go{{.GO_VERSION}}.linux-amd64.tar.gz
-      GO_INSTALL_DIR: "$HOME/go"
+      GO_INSTALL_DIR: "$HOME/local/go"
     dir: /tmp/install-go
     cmds:
       - if [ -d {{.GO_INSTALL_DIR}} ]; then
