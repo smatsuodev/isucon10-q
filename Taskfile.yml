@@ -43,8 +43,8 @@ tasks:
       BRANCH: '{{.CLI_ARGS | default "main"}}'
     cmds:
       - git fetch --all
+      - git switch -C {{.BRANCH}}
       - git reset --hard origin/{{.BRANCH}}
-      - git switch -C {{.BRANCH}} origin/{{.BRANCH}}
 
   enable:
     desc: Enable and start specified services
