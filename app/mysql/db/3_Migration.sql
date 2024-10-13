@@ -9,3 +9,5 @@ ALTER TABLE `chair`
     ADD INDEX in_stock_price_id (`in_stock`, `price`, `id`);
 ALTER TABLE `estate`
     ADD INDEX popularity_id_idx (`popularity` DESC, `id`);
+ALTER TABLE `estate`
+    ADD INDEX rent_id_idx (`rent`, `id`);
