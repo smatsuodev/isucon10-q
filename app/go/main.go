@@ -892,28 +892,30 @@ func searchEstateNazotte(c echo.Context) error {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	var response EstateSearchResponse
-	response.Estates = []Estate{}
-
 	// 領域に入っているかを判定
 	ring := make([]orb.Point, len(coordinates.Coordinates))
 	for i, c := range coordinates.Coordinates {
 		ring[i] = orb.Point{c.Latitude, c.Longitude}
 	}
 	polygon := orb.Polygon{ring}
+	estatesInPolygon := []Estate{}
 	for _, estate := range estatesInBoundingBox {
 		point := orb.Point{estate.Latitude, estate.Longitude}
 		if planar.PolygonContains(polygon, point) {
-			response.Estates = append(response.Estates, estate)
-		}
-		if len(response.Estates) >= NazotteLimit {
-			break
+			estatesInPolygon = append(estatesInPolygon, estate)
 		}
 	}
 
-	response.Count = int64(len(response.Estates))
+	var re EstateSearchResponse
+	re.Estates = []Estate{}
+	if len(estatesInPolygon) > NazotteLimit {
+		re.Estates = estatesInPolygon[:NazotteLimit]
+	} else {
+		re.Estates = estatesInPolygon
+	}
+	re.Count = int64(len(re.Estates))
 
-	return c.JSON(http.StatusOK, response)
+	return c.JSON(http.StatusOK, re)
 }
 
 func postEstateRequestDocument(c echo.Context) error {
