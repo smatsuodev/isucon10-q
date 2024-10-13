@@ -15,8 +15,9 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	pprotein "github.com/kaz/pprotein/integration/echov4"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 )
 
@@ -243,6 +244,9 @@ func main() {
 	e := echo.New()
 	e.Debug = true
 	e.Logger.SetLevel(log.DEBUG)
+
+	// pprof の handler を追加
+	pprotein.Integrate(e)
 
 	// Middleware
 	e.Use(middleware.Logger())
