@@ -5,7 +5,7 @@ ALTER TABLE `chair`
 
 ALTER TABLE `estate`
     ADD COLUMN `pt` POINT
-        GENERATED ALWAYS AS (ST_SRID(POINT(`latitude`, `longitude`), 4326))
+        GENERATED ALWAYS AS (ST_SRID(POINT(`longitude`, `latitude`), 4326))
         STORED NOT NULL INVISIBLE;
 ALTER TABLE `estate` MODIFY COLUMN `pt` POINT SRID 4326 NOT NULL INVISIBLE;
 
