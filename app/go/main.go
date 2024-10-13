@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"github.com/paulmach/orb/planar"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -20,7 +19,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
-	"github.com/paulmach/orb"
 )
 
 const Limit = 20
@@ -879,7 +877,6 @@ func searchEstateNazotte(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	// 四角形で大雑把に物件を取得
 	b := coordinates.getBoundingBox()
 	estatesInBoundingBox := []Estate{}
 	query := `SELECT * FROM estate WHERE latitude <= ? AND latitude >= ? AND longitude <= ? AND longitude >= ? ORDER BY popularity DESC, id ASC`
@@ -892,17 +889,22 @@ func searchEstateNazotte(c echo.Context) error {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	// 領域に入っているかを判定
-	ring := make([]orb.Point, len(coordinates.Coordinates))
-	for i, c := range coordinates.Coordinates {
-		ring[i] = orb.Point{c.Latitude, c.Longitude}
-	}
-	polygon := orb.Polygon{ring}
 	estatesInPolygon := []Estate{}
 	for _, estate := range estatesInBoundingBox {
-		point := orb.Point{estate.Latitude, estate.Longitude}
-		if planar.PolygonContains(polygon, point) {
-			estatesInPolygon = append(estatesInPolygon, estate)
+		validatedEstate := Estate{}
+
+		point := fmt.Sprintf("'POINT(%f %f)'", estate.Latitude, estate.Longitude)
+		query := fmt.Sprintf(`SELECT * FROM estate WHERE id = ? AND ST_Contains(ST_PolygonFromText(%s), ST_GeomFromText(%s))`, coordinates.coordinatesToText(), point)
+		err = db.Get(&validatedEstate, query, estate.ID)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				continue
+			} else {
+				c.Echo().Logger.Errorf("db access is failed on executing validate if estate is in polygon : %v", err)
+				return c.NoContent(http.StatusInternalServerError)
+			}
+		} else {
+			estatesInPolygon = append(estatesInPolygon, validatedEstate)
 		}
 	}
 
