@@ -44,7 +44,7 @@ tasks:
     cmds:
       - git fetch --all
       - git reset --hard origin/{{.BRANCH}}
-      - git switch -C {{.BRANCH}} origin/{{.BRANCH}}
+      - git checkout -b {{.BRANCH}} origin/{{.BRANCH}}
 
   enable:
     desc: Enable and start specified services
