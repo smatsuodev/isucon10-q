@@ -881,7 +881,7 @@ func searchEstateNazotte(c echo.Context) error {
 
 	query := fmt.Sprintf(`
 		SELECT * FROM estate
-		WHERE ST_Contains(ST_PolygonFromText(%s), Point(latitude, longitude))
+		WHERE ST_Contains(ST_PolygonFromText(%s), pt)
 		ORDER BY popularity DESC, id
 		LIMIT ?
 	`, coordinates.coordinatesToText())
