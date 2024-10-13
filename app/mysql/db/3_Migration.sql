@@ -15,6 +15,8 @@ ALTER TABLE `chair`
     ADD INDEX color_in_stock (`color`, `in_stock`);
 ALTER TABLE `chair`
     ADD INDEX kind_in_stock (`kind`, `in_stock`);
+ALTER TABLE `chair`
+    ADD INDEX depth_in_stock (`depth`, `in_stock`);
 ALTER TABLE `estate`
     ADD INDEX popularity_id_idx (`popularity` DESC, `id`);
 ALTER TABLE `estate`
