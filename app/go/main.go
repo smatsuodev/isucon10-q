@@ -297,7 +297,7 @@ func initialize(c echo.Context) error {
 		filepath.Join(sqlDir, "3_Migration.sql"),
 	}
 
-	for _, p := range paths {
+	for i, p := range paths {
 		sqlFile, _ := filepath.Abs(p)
 		cmdStr := fmt.Sprintf("mysql -h %v -u %v -p%v -P %v %v < %v",
 			mySQLConnectionData.Host,
@@ -308,7 +308,7 @@ func initialize(c echo.Context) error {
 			sqlFile,
 		)
 		if err := exec.Command("bash", "-c", cmdStr).Run(); err != nil {
-			c.Logger().Errorf("Initialize script error : %v", err)
+			c.Logger().Errorf("Initialize script error(%d) : %v", i, err)
 			return c.NoContent(http.StatusInternalServerError)
 		}
 	}
