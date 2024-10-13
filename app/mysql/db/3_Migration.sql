@@ -19,3 +19,5 @@ ALTER TABLE `estate`
     ADD INDEX popularity_id_idx (`popularity` DESC, `id`);
 ALTER TABLE `estate`
     ADD INDEX rent_id_idx (`rent`, `id`);
+ALTER TABLE `estate`
+    ADD INDEX door_height (`door_height`);
