@@ -3,6 +3,12 @@ ALTER TABLE `chair`
         GENERATED ALWAYS AS (`stock` > 0)
         STORED NOT NULL;
 
+ALTER TABLE `estate`
+    ADD COLUMN `pt` POINT
+        GENERATED ALWAYS AS (ST_SRID(POINT(`latitude`, `longitude`), 4326))
+        STORED NOT NULL INVISIBLE;
+ALTER TABLE `estate` MODIFY COLUMN `pt` POINT SRID 4326 NOT NULL INVISIBLE;
+
 ALTER TABLE `chair`
     ADD INDEX popularity_id_idx (`popularity` DESC, `id`);
 ALTER TABLE `chair`
@@ -26,4 +32,4 @@ ALTER TABLE `estate`
 ALTER TABLE `estate`
     ADD INDEX door_width (`door_width`);
 ALTER TABLE `estate`
-    ADD INDEX latitude_longitude (`latitude`, `longitude`);
+    ADD SPATIAL INDEX point_idx (`pt`);
