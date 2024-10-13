@@ -102,6 +102,7 @@ tasks:
     cmds:
       - if [ -d {{.GO_INSTALL_DIR}} ]; then
         mv {{.GO_INSTALL_DIR}} {{.GO_INSTALL_DIR}}.bak.$(date +%H%M%S);
+        mkdir -p {{.GO_INSTALL_DIR}};
         fi
       - wget -qO go.tar.gz {{.GO_DOWNLOAD_URL}}
       - tar -C {{.GO_INSTALL_DIR}} -xzf go.tar.gz
