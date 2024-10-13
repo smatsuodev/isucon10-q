@@ -10,6 +10,10 @@ ALTER TABLE `chair`
 ALTER TABLE `chair`
     ADD INDEX height_in_stock (`height`, `in_stock`);
 ALTER TABLE `chair`
+    ADD INDEX width_in_stock (`width`, `in_stock`);
+ALTER TABLE `chair`
+    ADD INDEX color_in_stock (`color`, `in_stock`);
+ALTER TABLE `chair`
     ADD INDEX kind_in_stock (`kind`, `in_stock`);
 ALTER TABLE `estate`
     ADD INDEX popularity_id_idx (`popularity` DESC, `id`);
