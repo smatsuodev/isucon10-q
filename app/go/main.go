@@ -50,24 +50,6 @@ type Chair struct {
 	InStock     bool   `db:"in_stock" json:"-"`
 }
 
-type ChairWithCount struct {
-	Count       int64  `db:"total_count" json:"-"`
-	ID          int64  `db:"id" json:"id"`
-	Name        string `db:"name" json:"name"`
-	Description string `db:"description" json:"description"`
-	Thumbnail   string `db:"thumbnail" json:"thumbnail"`
-	Price       int64  `db:"price" json:"price"`
-	Height      int64  `db:"height" json:"height"`
-	Width       int64  `db:"width" json:"width"`
-	Depth       int64  `db:"depth" json:"depth"`
-	Color       string `db:"color" json:"color"`
-	Features    string `db:"features" json:"features"`
-	Kind        string `db:"kind" json:"kind"`
-	Popularity  int64  `db:"popularity" json:"-"`
-	Stock       int64  `db:"stock" json:"-"`
-	InStock     bool   `db:"in_stock" json:"-"`
-}
-
 type ChairSearchResponse struct {
 	Count  int64   `json:"count"`
 	Chairs []Chair `json:"chairs"`
@@ -79,22 +61,6 @@ type ChairListResponse struct {
 
 // Estate 物件
 type Estate struct {
-	ID          int64   `db:"id" json:"id"`
-	Thumbnail   string  `db:"thumbnail" json:"thumbnail"`
-	Name        string  `db:"name" json:"name"`
-	Description string  `db:"description" json:"description"`
-	Latitude    float64 `db:"latitude" json:"latitude"`
-	Longitude   float64 `db:"longitude" json:"longitude"`
-	Address     string  `db:"address" json:"address"`
-	Rent        int64   `db:"rent" json:"rent"`
-	DoorHeight  int64   `db:"door_height" json:"doorHeight"`
-	DoorWidth   int64   `db:"door_width" json:"doorWidth"`
-	Features    string  `db:"features" json:"features"`
-	Popularity  int64   `db:"popularity" json:"-"`
-}
-
-type EstateWithCount struct {
-	Count       int64   `db:"total_count" json:"-"`
 	ID          int64   `db:"id" json:"id"`
 	Thumbnail   string  `db:"thumbnail" json:"thumbnail"`
 	Name        string  `db:"name" json:"name"`
@@ -551,12 +517,21 @@ func searchChairs(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
+	searchQuery := "SELECT * FROM chair WHERE "
+	countQuery := "SELECT COUNT(*) FROM chair WHERE "
 	searchCondition := strings.Join(conditions, " AND ")
-	searchQuery := `SELECT *, COUNT(*) OVER() as total_count FROM chair WHERE ` + searchCondition + ` ORDER BY popularity DESC, id ASC LIMIT ? OFFSET ?`
+	limitOffset := " ORDER BY popularity DESC, id ASC LIMIT ? OFFSET ?"
 
-	chairs := []ChairWithCount{}
+	var res ChairSearchResponse
+	err = db.Get(&res.Count, countQuery+searchCondition, params...)
+	if err != nil {
+		c.Logger().Errorf("searchChairs DB execution error : %v", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	chairs := []Chair{}
 	params = append(params, perPage, page*perPage)
-	err = db.Select(&chairs, searchQuery, params...)
+	err = db.Select(&chairs, searchQuery+searchCondition+limitOffset, params...)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusOK, ChairSearchResponse{Count: 0, Chairs: []Chair{}})
@@ -565,17 +540,9 @@ func searchChairs(c echo.Context) error {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	if len(chairs) == 0 {
-		return c.JSON(http.StatusOK, ChairSearchResponse{Count: 0, Chairs: []Chair{}})
-	}
+	res.Chairs = chairs
 
-	return c.JSON(http.StatusOK, struct {
-		ChairWithCount []ChairWithCount `json:"chairs"`
-		Count          int64            `json:"count"`
-	}{
-		chairs,
-		chairs[0].Count,
-	})
+	return c.JSON(http.StatusOK, res)
 }
 
 func buyChair(c echo.Context) error {
@@ -818,12 +785,21 @@ func searchEstates(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
+	searchQuery := "SELECT * FROM estate WHERE "
+	countQuery := "SELECT COUNT(*) FROM estate WHERE "
 	searchCondition := strings.Join(conditions, " AND ")
-	searchQuery := `SELECT *, COUNT(*) OVER() as total_count FROM estate WHERE ` + searchCondition + ` ORDER BY popularity DESC, id ASC LIMIT ? OFFSET ?`
+	limitOffset := " ORDER BY popularity DESC, id ASC LIMIT ? OFFSET ?"
 
-	estates := []EstateWithCount{}
+	var res EstateSearchResponse
+	err = db.Get(&res.Count, countQuery+searchCondition, params...)
+	if err != nil {
+		c.Logger().Errorf("searchEstates DB execution error : %v", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	estates := []Estate{}
 	params = append(params, perPage, page*perPage)
-	err = db.Select(&estates, searchQuery, params...)
+	err = db.Select(&estates, searchQuery+searchCondition+limitOffset, params...)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusOK, EstateSearchResponse{Count: 0, Estates: []Estate{}})
@@ -832,17 +808,9 @@ func searchEstates(c echo.Context) error {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	if len(estates) == 0 {
-		return c.JSON(http.StatusOK, EstateSearchResponse{Count: 0, Estates: []Estate{}})
-	}
+	res.Estates = estates
 
-	return c.JSON(http.StatusOK, struct {
-		EstateWithCount []EstateWithCount `json:"estates"`
-		Count           int64             `json:"count"`
-	}{
-		estates,
-		estates[0].Count,
-	})
+	return c.JSON(http.StatusOK, res)
 }
 
 func getLowPricedEstate(c echo.Context) error {
