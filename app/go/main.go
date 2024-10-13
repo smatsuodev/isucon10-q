@@ -247,6 +247,8 @@ func main() {
 	e.Debug = true
 	e.Logger.SetLevel(log.DEBUG)
 
+	e.JSONSerializer = FastJSONSerializer{}
+
 	// pprof の handler を追加
 	pprotein.Integrate(e)
 
