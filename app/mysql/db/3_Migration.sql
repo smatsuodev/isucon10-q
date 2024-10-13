@@ -3,11 +3,6 @@ ALTER TABLE `chair`
         GENERATED ALWAYS AS (`stock` > 0)
         STORED NOT NULL;
 
-ALTER TABLE `estate`
-    ADD COLUMN `location` POINT
-        GENERATED ALWAYS AS (POINT(`latitude`, `longitude`))
-        STORED NOT NULL INVISIBLE;
-
 ALTER TABLE `chair`
     ADD INDEX popularity_id_idx (`popularity` DESC, `id`);
 ALTER TABLE `chair`
@@ -31,4 +26,4 @@ ALTER TABLE `estate`
 ALTER TABLE `estate`
     ADD INDEX door_width (`door_width`);
 ALTER TABLE `estate`
-    ADD SPATIAL INDEX point_idx (`location`);
+    ADD INDEX latitude_longitude (`latitude`, `longitude`);
