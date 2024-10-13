@@ -219,8 +219,7 @@ func getEnv(key, defaultValue string) string {
 
 // ConnectDB isuumoデータベースに接続する
 func (mc *MySQLConnectionEnv) ConnectDB() (*sqlx.DB, error) {
-	//dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", mc.User, mc.Password, mc.Host, mc.Port, mc.DBName)
-	dsn := fmt.Sprintf("%v:%v@unix(/var/lib/mysql/mysql.sock)/%v", mc.User, mc.Password, mc.DBName)
+	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", mc.User, mc.Password, mc.Host, mc.Port, mc.DBName)
 	return sqlx.Open("mysql", dsn)
 }
 
